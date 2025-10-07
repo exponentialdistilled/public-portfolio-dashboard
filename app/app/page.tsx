@@ -9,16 +9,16 @@ type Holding = {
   currentPrice: number;
   unitsRemaining: number;
   currentSize: number;
-  weightPct: number; // 0-100
+  weightPct: number; // 0–100
   unrealPnL: number;
 };
 
 const meta = {
-  inceptionDate: "July 15th 2025",
-  starting: 100000,
-  current: 130414,
-  portfolioRoi: 0.3041,
-  relRoiBtc: 0.2421
+  inception: "July 15th 2025",
+  starting: 100_000,
+  current: 130_414,
+  roi: 0.3041,
+  relBtc: 0.2421,
 };
 
 const holdings: Holding[] = [
@@ -31,70 +31,64 @@ const holdings: Holding[] = [
   { ticker:"CCJ", theme:"Nuclear", entryDate:"7/15/2025", initialUnits:120, avgPrice:74.88, currentPrice:85.31, unitsRemaining:127, currentSize:10860.12, weightPct:8.33, unrealPnL:1327.76 },
   { ticker:"OKLO", theme:"Nuclear", entryDate:"7/15/2025", initialUnits:160, avgPrice:65.38, currentPrice:138.56, unitsRemaining:79, currentSize:10995.31, weightPct:8.43, unrealPnL:5807.14 },
   { ticker:"GDXJ", theme:"Precious Metals", entryDate:"9/2/2025", initialUnits:68, avgPrice:82.06, currentPrice:102.48, unitsRemaining:68, currentSize:6964.75, weightPct:5.34, unrealPnL:1387.78 },
-  { ticker:"HIMS", theme:"GLP-1s", entryDate:"7/15/2025", initialUnits:211, avgPrice:52.03, currentPrice:54.76, unitsRemaining:106, currentSize:5788.58, weightPct:4.44, unrealPnL:288.58 }
+  { ticker:"HIMS", theme:"GLP-1s", entryDate:"7/15/2025", initialUnits:211, avgPrice:52.03, currentPrice:54.76, unitsRemaining:106, currentSize:5788.58, weightPct:4.44, unrealPnL:288.58 },
 ];
 
-const fCurrency = (n:number) =>
-  n.toLocaleString("en-US", { style:"currency", currency:"USD", maximumFractionDigits:2 });
+const f$ = (n:number) => n.toLocaleString("en-US",{style:"currency",currency:"USD",maximumFractionDigits:2});
 
 export default function Page() {
   const totalWeight = holdings.reduce((s,h)=>s+h.weightPct,0);
-  const asOf = new Date().toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" });
+  const asOf = new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
 
   return (
-    <div style={{maxWidth:1100, margin:"32px auto", padding:"0 16px"}}>
-      <header style={{marginBottom:24}}>
-        <h1 style={{fontSize:28, fontWeight:800}}>Exponential, Distilled — Public Portfolio</h1>
-        <p style={{opacity:.8, marginTop:6}}>
-          Live mock cross-asset portfolio, engineered to outperform BTC & major benchmarks.
+    <main style={wrap as React.CSSProperties}>
+      {/* Top bar / title */}
+      <section style={{marginBottom: 18}}>
+        <h1 style={h1 as React.CSSProperties}>Exponential, Distilled — Public Portfolio</h1>
+        <p style={tag as React.CSSProperties}>
+          Live cross-asset mock portfolio. Designed to consistently outperform BTC & major benchmarks.
         </p>
-      </header>
+      </section>
 
-      {/* KPI strip */}
-      <section style={{
-        display:"grid", gridTemplateColumns:"repeat(4,minmax(0,1fr))", gap:12, marginBottom:24
-      }}>
-        <Kpi label="Inception" value={meta.inceptionDate}/>
-        <Kpi label="Starting Value" value={fCurrency(meta.starting)}/>
-        <Kpi label="Current Value" value={fCurrency(meta.current)}/>
+      {/* KPI row */}
+      <section style={kpiGrid as React.CSSProperties}>
+        <Kpi label="Inception" value={meta.inception}/>
+        <Kpi label="Starting Value" value={f$(meta.starting)}/>
+        <Kpi label="Current Value" value={f$(meta.current)}/>
         <Kpi label="As of" value={asOf}/>
       </section>
 
-      <section style={{
-        display:"grid", gridTemplateColumns:"repeat(2,minmax(0,1fr))", gap:12, marginBottom:28
-      }}>
-        <StatCard label="Portfolio ROI" value={(meta.portfolioRoi*100).toFixed(2) + "%"} accent="#8BC34A"/>
-        <StatCard label="Relative ROI vs BTC" value={(meta.relRoiBtc*100).toFixed(2) + "%"} accent="#FFEB3B" textColor="#111"/>
+      {/* ROI row */}
+      <section style={twoCols as React.CSSProperties}>
+        <StatCard label="Portfolio ROI" value={`${(meta.roi*100).toFixed(2)}%`} accent="#7cc5ff"/>
+        <StatCard label="Relative ROI vs BTC" value={`${(meta.relBtc*100).toFixed(2)}%`} accent="#ffe674" darkText />
       </section>
 
       {/* Holdings table */}
-      <section>
-        <h2 style={{fontSize:18, fontWeight:700, margin:"14px 0"}}>Live Portfolio</h2>
-        <div style={{overflowX:"auto", border:"1px solid #272727", borderRadius:8}}>
-          <table style={{width:"100%", borderCollapse:"collapse", fontSize:14}}>
-            <thead style={{background:"#0d2238"}}>
+      <section style={{marginTop: 18}}>
+        <h2 style={h2 as React.CSSProperties}>Live Portfolio</h2>
+        <div style={tableShell as React.CSSProperties}>
+          <table style={table as React.CSSProperties}>
+            <thead>
               <tr>
-                {["Ticker","Theme","Entry Date","Initial Units","Average Price","Current Price","Units Remaining","Current Size","Weight (%)","Unrealized P/L"]
-                  .map((h)=>(
-                  <th key={h} style={{textAlign:"left", padding:"10px 12px", borderBottom:"1px solid #1f2a36"}}>{h}</th>
+                {HEADERS.map((h)=>(
+                  <th key={h} style={th as React.CSSProperties}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {holdings.map((h,idx)=>(
-                <tr key={h.ticker} style={{background: idx%2? "#121212":"#0f0f0f"}}>
-                  <td style={td}>{h.ticker}</td>
-                  <td style={td}>{h.theme}</td>
-                  <td style={td}>{h.entryDate}</td>
-                  <td style={td}>{h.initialUnits}</td>
-                  <td style={td}>{fCurrency(h.avgPrice)}</td>
-                  <td style={td}>{fCurrency(h.currentPrice)}</td>
-                  <td style={td}>{h.unitsRemaining}</td>
-                  <td style={td}>{fCurrency(h.currentSize)}</td>
-                  <td style={td}>{h.weightPct.toFixed(2)}</td>
-                  <td style={{...td, color: h.unrealPnL >= 0 ? "#7CFC9E" : "#FF6B6B"}}>
-                    {fCurrency(h.unrealPnL)}
-                  </td>
+              {holdings.map((r, i)=>(
+                <tr key={r.ticker} style={{background: i%2? "rgba(255,255,255,0.02)":"transparent"}}>
+                  <td style={td}>{r.ticker}</td>
+                  <td style={td}>{r.theme}</td>
+                  <td style={td}>{r.entryDate}</td>
+                  <td style={td}>{r.initialUnits}</td>
+                  <td style={td}>{f$(r.avgPrice)}</td>
+                  <td style={td}>{f$(r.currentPrice)}</td>
+                  <td style={td}>{r.unitsRemaining}</td>
+                  <td style={td}>{f$(r.currentSize)}</td>
+                  <td style={td}>{r.weightPct.toFixed(2)}</td>
+                  <td style={{...td, color: r.unrealPnL>=0? "#79f2b0":"#ff8f8f"}}>{f$(r.unrealPnL)}</td>
                 </tr>
               ))}
               <tr>
@@ -105,31 +99,63 @@ export default function Page() {
             </tbody>
           </table>
         </div>
+        <p style={disclaimer as React.CSSProperties}>
+          * Mock portfolio. For education only. Not investment advice.
+        </p>
       </section>
-
-      <footer style={{opacity:.7, fontSize:12, marginTop:18}}>
-        * Mock portfolio. For educational purposes only. No investment advice.
-      </footer>
-    </div>
+    </main>
   );
 }
 
-const td: React.CSSProperties = { padding:"10px 12px", borderBottom:"1px solid #1e1e1e" };
-
+// --- components & styles ---
 function Kpi({label, value}:{label:string; value:string}) {
   return (
-    <div style={{border:"1px solid #262626", borderRadius:10, padding:"14px 16px"}}>
-      <div style={{opacity:.7, fontSize:12}}>{label}</div>
-      <div style={{fontSize:16, fontWeight:700, marginTop:6}}>{value}</div>
+    <div style={card as React.CSSProperties}>
+      <div style={kpiLabel as React.CSSProperties}>{label}</div>
+      <div style={kpiValue as React.CSSProperties}>{value}</div>
     </div>
   );
 }
 
-function StatCard({label, value, accent, textColor}:{label:string; value:string; accent:string; textColor?:string}) {
+function StatCard(
+  {label, value, accent, darkText=false}:{label:string; value:string; accent:string; darkText?:boolean}
+){
   return (
-    <div style={{border:"1px solid #262626", borderRadius:10, padding:"16px", background:accent+"20"}}>
-      <div style={{opacity:.8, fontSize:12}}>{label}</div>
-      <div style={{fontSize:22, fontWeight:800, marginTop:6, color:textColor ?? "#eaeaea"}}>{value}</div>
+    <div style={{...card, background: "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03))", borderColor:"rgba(255,255,255,0.12)"}}>
+      <div style={{...pill as React.CSSProperties, background: accent, color: darkText? "#0e1530":"#081425"}}>{label}</div>
+      <div style={{fontSize: 28, fontWeight: 700, marginTop: 10}}>{value}</div>
     </div>
   );
 }
+
+const wrap = { maxWidth: 1100, margin: "36px auto 80px", padding: "0 16px" };
+const h1 = { fontSize: 28, fontWeight: 800, margin: 0 };
+const tag = { marginTop: 6, opacity: 0.8, fontSize: 14 };
+
+const kpiGrid = { display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 12, marginTop: 18 };
+const twoCols = { display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 12, marginTop: 12 };
+const h2 = { fontSize: 18, fontWeight: 700, margin: "18px 0 10px" };
+
+const card = { border: "1px solid rgba(255,255,255,0.10)", borderRadius: 12, padding: "14px 16px", backdropFilter: "blur(4px)" };
+const kpiLabel = { fontSize: 12, opacity: 0.7 };
+const kpiValue = { fontSize: 16, fontWeight: 700, marginTop: 6 };
+const pill = { display:"inline-block", padding:"6px 10px", fontSize:12, borderRadius: 999 };
+
+const tableShell = { overflowX: "auto", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 12 };
+const table = { width: "100%", borderCollapse: "collapse", fontSize: 14 };
+const th = {
+  textAlign: "left",
+  padding: "12px 14px",
+  background: "rgba(8,20,41,0.8)",
+  borderBottom: "1px solid rgba(255,255,255,0.12)",
+  position: "sticky" as const,
+  top: 0,
+};
+const td = { padding: "12px 14px", borderBottom: "1px solid rgba(255,255,255,0.08)" };
+const disclaimer = { fontSize: 12, opacity: 0.65, marginTop: 10 };
+
+const HEADERS = [
+  "Ticker","Theme","Entry Date","Initial Units","Average Price",
+  "Current Price","Units Remaining","Current Size","Weight (%)","Unrealized P/L"
+];
+
